@@ -1,3 +1,3 @@
-chr1	src_x	type_y	   1	1001	.	-	.	ID=contig1
-chr1	src_x	type_y	1010	3001	.	+	.	ID=contig2
-chr2	src_x	type_y	  20	2001	.	+	.	ID=contig3
+chr1	src_x	contig	   1	1001	.	-	.	ID=contig1
+chr1	src_x	contig	1010	3001	.	+	.	ID=contig2
+chr2	src_x	contig	  20	2001	.	+	.	ID=contig3

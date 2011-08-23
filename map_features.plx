@@ -104,7 +104,7 @@ GetOptions( 'help|?'   => \$help,
             'verbose+' => \$verbose,
 
             'gff-mapping-file|map=s' => \$gff_mapping_file,
-            'feature-type|type'      => \$feature_type,
+            'feature-type|type=s'    => \$feature_type,
 
             'map-all-features|a+' => \$map_all,
           )
