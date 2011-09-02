@@ -71,22 +71,25 @@ require parent features to preceed sub-featues in the GFF.
 
 use strict;
 
-## for debugging
+## For debugging
 use Data::Dumper;
 
-## to parse command line options, or barf
+## Parse command line options, or barf
 use Getopt::Long;
 use Pod::Usage;
 
+## Parse GFF3
 use Bio::GFF3::LowLevel qw/ gff3_parse_feature gff3_format_feature /;
 
+## BioPerl 'location' features
 use Bio::Location::Simple;
 
+## Our wrapper to Bio::Coordinate::Collection
 use GFFCoordinateMapper;
 
 
 
-## HANDLE COMMAND LINE OPTIONS
+## COMMAND LINE OPTIONS
 
 my $man = 0;
 my $help = 0;
@@ -143,6 +146,9 @@ else{
 warn "\nthe mapper has ",
   scalar $mapper->components, " components\n"
   if $verbose > 0;
+
+die "\nfound zero components to map over in $gff_mapping_file\n\n"
+  unless $mapper->components > 0;
 
 
 
@@ -236,7 +242,7 @@ while(<>){
             if($num_gaps > 2 || $num_match > 2){
                 warn Dumper $feature;
                 warn Dumper $new_feature_location;
-                die "failure of sanity!\n"
+                warn "failure of sanity!\n"
             }
             warn "spanning feature! : ",
               $feature->{attributes}{ID}[0], "\n";
@@ -250,7 +256,7 @@ while(<>){
         push @{$failed_to_map{$feature->{seq_id}}}, $feature;
         
         ## and move on without printing
-        next;
+        next unless $map_all;
     }
     
     
