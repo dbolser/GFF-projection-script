@@ -1,2 +1,5 @@
-contig1	src_y	gene	 401	 901	3	+	.	ID=gene1
-contig3	src_y	gene	  90	1409	9	-	.	ID=gene2
+contig1	src_y	gene	401	901	3	+	1	ID=gene1
+contig3	src_y	gene	90	1409	9	-	2	ID=gene2
+contig1	src_y	gene	2200	3339	18	+	1	ID=gene3
+contig4	src_y	gene	2920	6001	29	+	1	ID=gene4
+contig2	src_y	gene	200	2329	7	+	1	ID=gene5
