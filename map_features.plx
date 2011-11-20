@@ -127,7 +127,11 @@ warn "debug\t: $debug\nverbose\t: $verbose\n"
 
 
 
+
+
 ## GO TIME
+
+warn "\nprocessing mapping GFF\n";
 
 ## Initalise the 'mapping' object
 my $mapper;
@@ -143,22 +147,24 @@ else{
     new( file => $gff_mapping_file );
 }
 
-warn "\nthe mapper has ",
-  scalar $mapper->components, " components\n"
-  if $verbose > 0;
-
-die "\nfound zero components to map over in $gff_mapping_file\n\n"
+die "found zero components to map over in $gff_mapping_file\n\n"
   unless $mapper->components > 0;
 
+warn "the mapper has ",
+  scalar $mapper->components, " components\n\n";
 
+
+
+warn "processing GFF\n";
+
+my ($features_mapped,
+    %features_mapped,
+    $failed_to_map,
+    %failed_to_map);
 
 ## NOTE, below we expect all sub-features to be preceeded by their
 ## parent features in the GFF, because we 'orphan' features who's
 ## parents didn't get mapped.
-
-warn "\nprocessing GFF\n\n";
-
-my (%features_mapped, %failed_to_map);
 
 while(<>){
     next if /^#/;
@@ -171,7 +177,7 @@ while(<>){
     ## Debugging
     if($debug > 0){
         next unless
-          $feature->{attributes}{ID}[0] =~ /F5IUTHY01DQ3BG/;
+          $feature->{attributes}{ID}[0] =~ /PGSC0003DMG400001256/;
     }
     
     ## Debugging
@@ -188,12 +194,13 @@ while(<>){
     
     warn Dumper $feature_location
       if $debug > 2;
+        
     
     
-    
-    
-    
+    ##
     ## Try to map the feature location onto the new coordinates
+    ##
+    
     my $new_feature_location =
       $mapper->map( $feature_location );
     
@@ -208,18 +215,18 @@ while(<>){
     ##    mapper and should be ignored or passed through unchanged.
     
     ## 2) The feature maps cleanly, and its coordinates should be
-    ##    updated to the new position.
+    ##    updated to their new position.
     
     ## 3) The feature may span multiple regions, and should now be
     ##    dropped.
-    
-    
     
     ## The mapping result object allows us to conveniently differentiate
     ## between these three cases...
     
     my $num_gaps  = $new_feature_location->each_gap;
     my $num_match = $new_feature_location->each_match;
+    
+    
     
     if(0){} # I hate syntax
     
@@ -236,23 +243,19 @@ while(<>){
         $feature->{strand} = $new_feature_location->strand;
     }
     
+    ## Case 3, something else happened
     else{
-        ## Case 3, perform a 'sanity check'...
-        if($num_gaps > 1 || $num_match > 1){
-            if($num_gaps > 2 || $num_match > 2){
-                warn Dumper $feature;
-                warn Dumper $new_feature_location;
-                warn "failure of sanity!\n"
-            }
-            warn "spanning feature! : ",
-              $feature->{attributes}{ID}[0], "\n";
-            warn Dumper $feature
-              if $debug > 1;
-            warn Dumper $new_feature_location
-              if $debug > 1;
-        }
+        warn "spanning feature! : ",
+          $feature->{attributes}{ID}[0], "\n"
+            if $verbose > 0;
+        
+        warn Dumper $feature
+          if $debug > 1;
+        warn Dumper $new_feature_location
+          if $debug > 1;
         
         ## log our 'failure'...
+        $failed_to_map++;
         push @{$failed_to_map{$feature->{seq_id}}}, $feature;
         
         ## and move on without printing
@@ -262,6 +265,7 @@ while(<>){
     
     
     ## Made it!
+    $features_mapped++;
     $features_mapped{$feature->{attributes}{ID}[0]}++;
     
     
@@ -269,7 +273,8 @@ while(<>){
     ## If this feature has a parent feature, check that the parent
     ## feature made it through, else, orphan the feature (so
     ## cruel!). Note, although this choice doesn't make much sense for
-    ## gene sub-features, it's important for 'clone-end' features.
+    ## gene sub-features, it's important for 'clone-end' features. It
+    ## could be made optional, or conditional on feature type.
     
     if($feature->{attributes}{Parent}){
         unless($features_mapped{$feature->{attributes}{Parent}[0]}){
@@ -282,8 +287,7 @@ while(<>){
     
     
     
-    
-    ## Sigh... convert from the BioPerl standard to the GFF standard
+    ## Convert from the BioPerl standard to the GFF standard... Sigh...
     if($feature->{strand}){
         $feature->{strand} = '+' if $feature->{strand} eq  '1';
         $feature->{strand} = '-' if $feature->{strand} eq '-1';
@@ -294,7 +298,8 @@ while(<>){
     print gff3_format_feature( $feature );
 }
 
-warn "OK\n\n";
+warn "we mapped ", $features_mapped || 0, " features\n";
+warn "there were ", $failed_to_map || 0, " problem features\n\n";
 
 
 
