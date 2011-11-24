@@ -277,11 +277,18 @@ while(<>){
     ## could be made optional, or conditional on feature type.
     
     if($feature->{attributes}{Parent}){
-        unless($features_mapped{$feature->{attributes}{Parent}[0]}){
+        my @parents = @{$feature->{attributes}{Parent}};
+        my @parents_mapped = grep $features_mapped{$_}, @parents;
+        if(@parents_mapped < @parents){
             warn "removing unmapped parent from ",
               $feature->{attributes}{ID}[0], "\n"
                 if $verbose > 0;
-            delete $feature->{attributes}{Parent};
+            if(@parents_mapped){
+                $feature->{attributes}{Parent} = \@parents_mapped;
+            }
+            else{
+                delete $feature->{attributes}{Parent};
+            }
         }
     }
     
