@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-map_features.plx - Maps GFF features via a given 'mapping' GFF file.
+map_features.plx - Maps GFF features via a given 'mapping GFF' file.
 
 =head1 SYNOPSIS
 
@@ -18,31 +18,31 @@ map_features.plx [options] <gff-file1> [<gff-file2>, ...]
 
 =item --gff-mapping-file, --map
 
-REQUIRED: The 'mapping' GFF file. See DESCRIPTION for details.
+REQUIRED: The 'mapping GFF' file. See DESCRIPTION for details.
 
 =item --feature-type, --type
 
-OPTIONAL: The feature type to use in the mapping GFF file.
+OPTIONAL: The feature type to use in the 'mapping GFF' file.
 
 =item --map_all, -a
 
 OPTIONAL: Output all features, including those that don't get mapped.
 
-Note, features that don't map cleanly are never output, but may be
+Note, features that don't map /cleanly/ are never output, but may be
 reported optionally (-v).
 
 =head1 DESCRIPTION
 
-The 'mapping' GFF file should have features with IDs that we want to
+The 'mapping GFF' file should have features with IDs that we want to
 map /from/ and reference sequences (SEQ_IDs) that we want to map /to/.
 
-For example, the lines of the 'mapping' GFF file may look something
+For example, the lines of the 'mapping GFF' file may look something
 like this:
 chr1	src_x	contig	   1	1001	.	-	.	ID=contig1
 chr1	src_x	contig	1010	3001	.	+	.	ID=contig2
 chr2	src_x	contig	  20	2001	.	+	.	ID=contig3
 
-Using this mapping file, we can map features /from/ contig1 or contig2
+Using this 'mapping GFF' file, we can map features /from/ contig1 or contig2
 /to/ chr1, or /from/ contig3 /to/ chr2, etc.
 
 i.e.
@@ -59,11 +59,11 @@ file, or that lay outside the region defined in the mapping file, are
 dropped, or passed through unchanged, depending on the setting of
 --map-all.
 
-Features that don't map 'clenly' are dropped, and optinally reported.
+Features that don't map 'clenly' are dropped, and optinally reported (-v).
 
 Finally, sub-features are 'orphaned' if their parent feature is found
 not to have been mapped cleanly. To do this in a single pass, we
-require parent features to preceed sub-featues in the GFF.
+require parent features to preceed sub-featues in the GFF. 
 
 =cut
 
@@ -74,17 +74,17 @@ use strict;
 ## For debugging
 use Data::Dumper;
 
-## Parse command line options, or barf
+## To parse command line options, or barf
 use Getopt::Long;
 use Pod::Usage;
 
-## Parse GFF3
+## To parse GFF3
 use Bio::GFF3::LowLevel qw/ gff3_parse_feature gff3_format_feature /;
 
 ## BioPerl 'location' features
 use Bio::Location::Simple;
 
-## Our wrapper to Bio::Coordinate::Collection
+## Our Moose powered wrapper to Bio::Coordinate::Collection
 use GFFCoordinateMapper;
 
 
@@ -259,7 +259,7 @@ while(<>){
         push @{$failed_to_map{$feature->{seq_id}}}, $feature;
         
         ## and move on without printing
-        next unless $map_all;
+        next;# unless $really_map_all;
     }
     
     
@@ -326,5 +326,3 @@ for (sort keys %failed_to_map){
 }
 
 warn "OK\n";
-
-
