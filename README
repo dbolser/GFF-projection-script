@@ -1,11 +1,10 @@
-
 USAGE
 * See the POD in the the script and the PM.
 * See the example 'mapping GFF' and input file.
 
 
 EXAMPLE
-  map_features.plx -g mapping.gff sample.gff
+  map_features.plx -g mapping.gff sample.gff > sample-mapped.gff
 
 
 INSTALL
@@ -23,3 +22,4 @@ Second, install any Perl module dependencies locally using cpanm. For very simpl
 
 TODO
 * Write some tests.
+* Improve error reporting.
