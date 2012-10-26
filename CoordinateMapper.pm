@@ -56,16 +56,16 @@ GFFCoordinateMapper - Perl module for building a
 
 =head1 SYNOPSIS
 
-  use GFFCoordinateMapper;
+  use CoordinateMapper;
 
   # Create a GFF coordinate mapper, and pass it a GFF file to build
   # mappings from
-  $feature_mapper = GFFCoordinateMapper->new();
+  $feature_mapper = CoordinateMapper->new();
   $feature_mapper->load_gff_file( $gff_file );
 
   # As above, but in a single step
-  $feature_mapper = GFFCoordinateMapper->
-    new( file => $mapping_gff );
+  $feature_mapper = CoordinateMapper->
+    new( gff_file => $mapping_gff );
 
   # As above, but define a specifc feature to use for the mapping.
   # The default is to use all features.
