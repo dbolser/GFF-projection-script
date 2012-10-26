@@ -1,6 +1,25 @@
-See the POD in the the script and the PM.
 
-See the example 'mapping GFF' and input file.
+USAGE
+* See the POD in the the script and the PM.
+* See the example 'mapping GFF' and input file.
 
-Write some tests.
 
+EXAMPLE
+  map_features.plx -g mapping.gff sample.gff
+
+
+INSTALL
+
+First, clone this git repo and cd:
+  git clone https://github.com/dbolser/GFF-mapping-script.git
+  cd GFF-mapping-script
+
+Second, install any Perl module dependencies locally using cpanm. For very simple instructions on how to do this, see: http://goo.gl/iiYns .. On my system, I have to install the following:
+
+  cpanm Bio::GFF3::LowLevel
+  cpanm Bio::Location::Simple # Who says BioPerl isn't modular?
+  cpanm MooseX::FileAttribute # Achem
+
+
+TODO
+* Write some tests.
