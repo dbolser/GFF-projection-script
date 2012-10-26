@@ -24,7 +24,7 @@ REQUIRED: The 'mapping GFF' file. See DESCRIPTION for details.
 
 OPTIONAL: The feature type to use in the 'mapping GFF' file.
 
-=item --map_all, -a
+=item --map_all, -A
 
 OPTIONAL: Output all features, including those that don't get mapped.
 
@@ -71,6 +71,7 @@ this convention may lead to orphan features in the mapped GFF.
 
 
 use strict;
+use warnings;
 
 ## For debugging
 use Data::Dumper;
@@ -86,7 +87,7 @@ use Bio::GFF3::LowLevel qw/ gff3_parse_feature gff3_format_feature /;
 use Bio::Location::Simple;
 
 ## Our Moose powered wrapper to Bio::Coordinate::Collection
-use GFFCoordinateMapper;
+use CoordinateMapper;
 
 
 
@@ -97,6 +98,7 @@ my $help = 0;
 my $debug = 0;
 my $verbose = 0;
 
+my $agp_mapping_file;
 my $gff_mapping_file;
 my $feature_type;
 
@@ -107,18 +109,22 @@ GetOptions( 'help|?'   => \$help,
             'debug+'   => \$debug,
             'verbose+' => \$verbose,
 
-            'gff-mapping-file|map=s' => \$gff_mapping_file,
-            'feature-type|type=s'    => \$feature_type,
+            'agp-mapping-file=s' => \$agp_mapping_file,
+            'gff-mapping-file=s' => \$gff_mapping_file,
+            'feature-type|type=s' => \$feature_type,
 
-            'map-all-features|a+' => \$map_all,
+            'map-all-features|A+' => \$map_all,
           )
   or pod2usage(2);
 
 pod2usage(1) if $help;
 pod2usage( -verbose => 2 ) if $man;
 
-pod2usage( "\nplease pass a 'mapping' GFF file (-g)\n" )
-  unless -s $gff_mapping_file;
+pod2usage( "\nplease pass a 'mapping' file (--agp <AGP> or --gff <GFF>)\n" )
+  unless -s $agp_mapping_file || -s $gff_mapping_file;
+
+pod2usage( "\nare you insane?\n" )
+  if defined( $agp_mapping_file ) && defined( $gff_mapping_file );
 
 pod2usage( "\nPass a GFF file (or files) for me to map!\n" )
   unless @ARGV;
@@ -132,22 +138,27 @@ warn "debug\t: $debug\nverbose\t: $verbose\n"
 
 ## GO TIME
 
-warn "\nprocessing mapping GFF\n";
+warn "\nprocessing mapping file\n";
 
 ## Initalise the 'mapping' object
 my $mapper;
 
-if($feature_type){
-  $mapper = GFFCoordinateMapper->
-    new( file => $gff_mapping_file,
-	 type => $feature_type
-       );
+if(defined($agp_mapping_file)){
+    $mapper = CoordinateMapper->
+        new(
+            agp_file => $agp_mapping_file,
+            type => $feature_type
+        );
 }
-else{
-  $mapper = GFFCoordinateMapper->
-    new( file => $gff_mapping_file );
+    
+if(defined($gff_mapping_file)){
+    $mapper = CoordinateMapper->
+        new(
+            gff_file => $gff_mapping_file,
+            type => $feature_type
+        );
 }
-
+    
 die "found zero components to map over in $gff_mapping_file\n\n"
   unless $mapper->components > 0;
 

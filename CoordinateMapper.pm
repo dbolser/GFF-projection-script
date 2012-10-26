@@ -1,4 +1,4 @@
-package GFFCoordinateMapper;
+package CoordinateMapper;
 
 use Data::Dumper;
 
@@ -25,17 +25,25 @@ has 'mapper' =>
   );
 
 ## Just so that we can pass a file at create time...
+has_file 'agp_file' =>
+  (
+   must_exist => 1,
+   init_arg => 'agp_file',
+   trigger => \&load_agp_file,
+  );
+
+## Just so that we can pass a file at create time...
 has_file 'gff_file' =>
   (
    must_exist => 1,
-   init_arg => 'file',
+   init_arg => 'gff_file',
    trigger => \&load_gff_file,
   );
 
 has 'feature_type' =>
   (
    is => 'ro',
-   isa => 'Str',
+   isa => 'Maybe[Str]',
    init_arg => 'type',
   );
 
@@ -140,6 +148,64 @@ to contigs or vice-verse.
 Dan B (dan.bolser@gmail.com)
 
 =cut
+
+
+
+sub load_agp_file {
+  my $self = shift;
+  my $file = shift;
+
+  confess "pass an AGP file plz\n"
+    unless -s $file;
+
+  open C, '<', $file
+    or die "failed to open file '$file' : $!\n";
+
+  while(<C>){
+    ## Ignore comments or blank lines
+    next if /^#/;
+    next if /^\s*$/;
+    chomp;
+    
+    ## Parse the AGP
+    my ($obj, $obj_beg, $obj_end,
+	$comp_idx, $comp_type, $comp_id,
+	$comp_beg, $comp_end, $comp_ori) = split/\t/;
+    
+    next unless $comp_type eq 'W';
+    
+    $comp_ori = +1 if $comp_ori ne '+' && $comp_ori ne '-';
+
+    ## Create a Bio::Coordinate::Pair (map) to store the mapping
+    ## between the feature and its reference sequence
+
+    my $cmp = Bio::Location::Simple->
+      new( -seq_id => $comp_id,
+	   -start  => $comp_beg,
+	   -end    => $comp_end,
+	   -strand => +1,
+	 );
+    #print Dumper $scaff;
+    
+    my $asm = Bio::Location::Simple->
+      new( -seq_id => $obj,
+	   -start  => $obj_beg,
+	   -end    => $obj_end,
+	   -strand => $comp_ori,
+	 );
+    #print Dumper $scaff_on_chr;
+    
+    my $map = Bio::Coordinate::Pair->
+      new( -in  => $cmp,
+	   -out => $asm,
+	 );
+    #print Dumper $map;
+    
+    $self->add_mapper( $map );
+  }
+
+  return $self->components;
+}
 
 
 
