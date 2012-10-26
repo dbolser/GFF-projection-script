@@ -1,0 +1,4 @@
+chr1	1	1001	1	W	contig1	1	1001	-
+chr1	1002	1009	2	N	8	scaffold	yes	paired-ends
+chr1	1010	3001	3	W	contig2	1	1992	+
+chr2	20	2001	1	W	contig3	1	1982	+
