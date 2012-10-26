@@ -24,4 +24,4 @@ TODO
 * Write some tests.
 * Improve error reporting (it's currently confusing).
 * Make 'orphan sub-features' optional (we should kill them instead, mua-ha-ha-har).
-* Add 'switch' as a command line option.
+* Add 'swap' as a command line option.
