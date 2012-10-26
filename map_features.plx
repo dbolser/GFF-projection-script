@@ -43,7 +43,7 @@ chr1	src_x	contig	1010	3001	.	+	.	ID=contig2
 chr2	src_x	contig	  20	2001	.	+	.	ID=contig3
 
 Using this 'mapping GFF' file, we can map features /from/ contig1 or contig2
-/to/ chr1, or /from/ contig3 /to/ chr2, etc.
+/to/ chr1, or /from/ contig3 /to/ chr2.
 
 i.e.
 contig1	src_y	gene	 401	 901	3	+	1	ID=gene1
@@ -63,7 +63,8 @@ Features that don't map 'clenly' are dropped, and optinally reported (-v).
 
 Finally, sub-features are 'orphaned' if their parent feature is found
 not to have been mapped cleanly. To do this in a single pass, we
-require parent features to preceed sub-featues in the GFF. 
+require parent features to preceed sub-featues in the GFF. Violating
+this convention may lead to orphan features in the mapped GFF.
 
 =cut
 
