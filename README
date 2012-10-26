@@ -22,4 +22,6 @@ Second, install any Perl module dependencies locally using cpanm. For very simpl
 
 TODO
 * Write some tests.
-* Improve error reporting.
+* Improve error reporting (it's currently confusing).
+* Make 'orphan sub-features' optional (we should kill them instead, mua-ha-ha-har).
+* Add 'swap' as a command line option.
