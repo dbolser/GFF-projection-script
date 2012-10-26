@@ -29,7 +29,7 @@ has_file 'gff_file' =>
   (
    must_exist => 1,
    init_arg => 'file',
-   trigger => \&load_gff,
+   trigger => \&load_gff_file,
   );
 
 has 'feature_type' =>
@@ -53,7 +53,7 @@ GFFCoordinateMapper - Perl module for building a
   # Create a GFF coordinate mapper, and pass it a GFF file to build
   # mappings from
   $feature_mapper = GFFCoordinateMapper->new();
-  $feature_mapper->load_gff( $gff_file );
+  $feature_mapper->load_gff_file( $gff_file );
 
   # As above, but in a single step
   $feature_mapper = GFFCoordinateMapper->
@@ -81,7 +81,7 @@ See Bio::Coordinate::Collection.
 
 =over 4
 
-=item * load_gff
+=item * load_gff_file
 
 Takes a GFF file as an argument and uses it to build the
 Bio::Coordinate::Collection. If feature_type is set, only those
@@ -131,7 +131,7 @@ Adds another Bio::Coordinate::Pair to the Bio::Coordinate::Collection
 =item * swap
 
 Swaps the direction of mapping, such that you can go from chromosomes
-to contigs or vice verse.
+to contigs or vice-verse.
 
 =back
 
@@ -143,7 +143,7 @@ Dan B (dan.bolser@gmail.com)
 
 
 
-sub load_gff {
+sub load_gff_file {
   my $self = shift;
   my $file = shift;
 
@@ -173,24 +173,27 @@ sub load_gff {
     ## Create a Bio::Coordinate::Pair (map) to store the mapping
     ## between the feature and its reference sequence
 
-    my $seq_id_loc = Bio::Location::Simple->
+    my $asm = Bio::Location::Simple->
       new( -seq_id => $feature->{seq_id},
 	   -start  => $feature->{start},
 	   -end    => $feature->{end},
 	   -strand => +1,
 	 );
+    #print Dumper $cmp;
 
-    my $featur_loc = Bio::Location::Simple->
+    my $cmp = Bio::Location::Simple->
       new( -seq_id => $feature->{attributes}{ID}[0],
 	   -start  => 1,
 	   -end    => $feature_length,
 	   -strand => $feature->{strand},
 	 );
+    #print Dumper $scaff_on_chr;
 
     my $map = Bio::Coordinate::Pair->
-      new( -in  => $featur_loc,
-	   -out => $seq_id_loc,
+      new( -in  => $cmp,
+	   -out => $asm,
 	 );
+    #print Dumper $map;
 
     $self->add_mapper( $map );
   }
@@ -200,14 +203,14 @@ sub load_gff {
 
 sub components {
   my $self = shift;
-  
+
   my @components;
-  
-  ## $self->agp is a Bio::Coordinate::Colleciton, composed of several
-  ## 'mappers'. Each 'mapper' is a Bio::Coordinate::Pair.
+
+  ## $self->mapper is a Bio::Coordinate::Colleciton, composed of
+  ## several 'mappers'. Each 'mapper' is a Bio::Coordinate::Pair.
   push @components,
-  $_->in->seq_id for $self->mapper->mappers;
-  
+    $_->in->seq_id for $self->mapper->mappers;
+
   return @components;
 }
 
